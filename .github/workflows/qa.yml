@@ -30,16 +30,23 @@ jobs:
           echo "RESULT_FOLDER=$FOLDER" >> $GITHUB_ENV
           echo "TARGET_URL=${{ github.event.inputs.url }}" >> $GITHUB_ENV
 
-      - name: Run Playwright + Percy + axe
-        run: npx percy exec -- npx playwright test
+      - name: Run Playwright + Percy
+        run: |
+          npx percy exec -- \
+          npx playwright test --reporter=json=$RESULT_FOLDER/playwright-report.json
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
 
       - name: Run Lighthouse
         run: node scripts/lighthouse.js
 
-      - name: Generate Summary
-        run: node scripts/generate-summary.js
+      - name: Install Python dependency
+        run: |
+          python -m pip install --upgrade pip
+          pip install reportlab
+
+      - name: Generate PDF Report
+        run: python scripts/generate-pdf.py
 
       - name: Upload QA Results
         uses: actions/upload-artifact@v3
