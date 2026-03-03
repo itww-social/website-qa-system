@@ -1,0 +1,48 @@
+name: Website QA
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Website URL"
+        required: true
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - run: npm install
+      - run: npx playwright install
+
+      - name: Prepare Result Folder
+        run: |
+          DOMAIN=$(echo "${{ github.event.inputs.url }}" | sed 's|https\?://||' | sed 's|/||g')
+          DATE=$(date +%Y-%m-%d)
+          FOLDER="qa-results/$DOMAIN-$DATE"
+          mkdir -p $FOLDER
+          echo "RESULT_FOLDER=$FOLDER" >> $GITHUB_ENV
+          echo "TARGET_URL=${{ github.event.inputs.url }}" >> $GITHUB_ENV
+
+      - name: Run Playwright + Percy + axe
+        run: npx percy exec -- npx playwright test
+        env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+
+      - name: Run Lighthouse
+        run: node scripts/lighthouse.js
+
+      - name: Generate Summary
+        run: node scripts/generate-summary.js
+
+      - name: Upload QA Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: qa-results
+          path: qa-results/
