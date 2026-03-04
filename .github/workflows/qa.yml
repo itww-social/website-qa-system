@@ -49,7 +49,7 @@ jobs:
         run: python scripts/generate-pdf.py
 
       - name: Upload QA Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: qa-results
           path: qa-results/
