@@ -1,8 +1,8 @@
-import lighthouse from 'lighthouse';
-import chromeLauncher from 'chrome-launcher';
-import fs from 'fs';
+const fs = require('fs');
+const chromeLauncher = require('chrome-launcher');
 
 (async () => {
+  const lighthouse = (await import('lighthouse')).default;
 
   const url = process.env.TARGET_URL;
   const resultFolder = process.env.RESULT_FOLDER;
@@ -20,5 +20,4 @@ import fs from 'fs';
   );
 
   await chrome.kill();
-
 })();
