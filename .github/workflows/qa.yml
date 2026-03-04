@@ -32,8 +32,7 @@ jobs:
 
       - name: Run Playwright + Percy
         run: |
-          npx percy exec -- \
-          npx playwright test --reporter=json=$RESULT_FOLDER/playwright-report.json
+          npx percy exec -- npx playwright test
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
 
