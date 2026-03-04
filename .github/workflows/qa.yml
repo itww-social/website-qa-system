@@ -30,9 +30,12 @@ jobs:
           echo "RESULT_FOLDER=$FOLDER" >> $GITHUB_ENV
           echo "TARGET_URL=${{ github.event.inputs.url }}" >> $GITHUB_ENV
 
-      - name: Run Playwright + Percy
-        run: |
-          npx percy exec -- npx playwright test
+      - name: Run Functional + Accessibility Tests
+        run: npx playwright test --grep-invert @visual
+
+      - name: Run Percy Visual Test
+        if: success()
+        run: npx percy exec -- npx playwright test --grep @visual
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
 
