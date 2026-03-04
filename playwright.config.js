@@ -1,9 +1,7 @@
 // playwright.config.js
-
-const path = require('path');
-
 module.exports = {
   reporter: [
+    ['list'],
     ['json', { outputFile: process.env.RESULT_FOLDER + '/playwright-report.json' }]
   ],
 };
