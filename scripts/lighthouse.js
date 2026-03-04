@@ -1,17 +1,19 @@
 const fs = require('fs');
-const chromeLauncher = require('chrome-launcher');
 
 (async () => {
   const lighthouse = (await import('lighthouse')).default;
+  const chromeLauncher = (await import('chrome-launcher')).default;
 
   const url = process.env.TARGET_URL;
   const resultFolder = process.env.RESULT_FOLDER;
 
-  const chrome = await chromeLauncher.launch({ chromeFlags: ['--headless'] });
+  const chrome = await chromeLauncher.launch({
+    chromeFlags: ['--headless']
+  });
 
   const runnerResult = await lighthouse(url, {
     port: chrome.port,
-    output: 'json',
+    output: 'json'
   });
 
   fs.writeFileSync(
