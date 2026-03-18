@@ -1,17 +1,22 @@
 import os, json
 from datetime import datetime
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, PageBreak
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
-from xml.sax.saxutils import escape  # ✅ FIX for HTML issues
+from xml.sax.saxutils import escape
 
+# ---------------- ENV ----------------
 folder = os.environ.get("RESULT_FOLDER")
 url = os.environ.get("TARGET_URL")
 out_pdf = os.path.join(folder, "Client-QA-Report.pdf")
 
 styles = getSampleStyleSheet()
-doc = SimpleDocTemplate(out_pdf, topMargin=36, bottomMargin=36)
+doc = SimpleDocTemplate(
+    out_pdf,
+    topMargin=36,
+    bottomMargin=36
+)
 
 elements = []
 
@@ -86,7 +91,7 @@ if os.path.exists(lh_file):
     elements.append(table2)
     add_space(0.3)
 
-# ---------------- ACCESSIBILITY (AXE) ----------------
+# ---------------- ACCESSIBILITY ----------------
 axe_file = os.path.join(folder, "accessibility.json")
 if os.path.exists(axe_file):
     with open(axe_file) as f:
@@ -100,7 +105,6 @@ if os.path.exists(axe_file):
     elements.append(Paragraph(f"Total violations: {len(violations)}", styles['Normal']))
     add_space(0.1)
 
-    # Severity breakdown
     sev = {"critical": 0, "serious": 0, "moderate": 0, "minor": 0}
     for v in violations:
         impact = v.get('impact', 'minor')
@@ -123,7 +127,6 @@ if os.path.exists(axe_file):
     elements.append(sev_table)
     add_space(0.2)
 
-    # Top issues
     if violations:
         elements.append(Paragraph("Top Issues (sample):", styles['Heading3']))
         add_space(0.1)
@@ -166,22 +169,31 @@ add_space(0.1)
 elements.append(Paragraph("Snapshots captured. Review visual changes in Percy dashboard.", styles['Normal']))
 add_space(0.2)
 
-# ---------------- SCREENSHOT ----------------
+# ---------------- SCREENSHOT (FIXED) ----------------
 screenshot = os.path.join(folder, "screenshot.png")
 
 if os.path.exists(screenshot):
+    elements.append(PageBreak())  # cleaner layout
     elements.append(Paragraph("Website Screenshot", styles['Heading2']))
-    add_space(0.1)
+    add_space(0.2)
 
     try:
         img = Image(screenshot)
 
-        # Maintain aspect ratio
+        max_width = 6.5 * inch
+        max_height = 9 * inch
+
         ratio = img.imageHeight / img.imageWidth
-        img.drawWidth = 6.5 * inch
-        img.drawHeight = img.drawWidth * ratio
+
+        img.drawWidth = max_width
+        img.drawHeight = max_width * ratio
+
+        if img.drawHeight > max_height:
+            img.drawHeight = max_height
+            img.drawWidth = max_height / ratio
 
         elements.append(img)
+
     except Exception as e:
         elements.append(Paragraph(f"Image error: {escape(str(e))}", styles['Normal']))
 
@@ -198,7 +210,7 @@ if 'perf' in locals() and perf < 60:
 
 elements.append(Paragraph(f"Suggested Grade: {grade}", styles['Normal']))
 
-# ---------------- BUILD PDF ----------------
+# ---------------- BUILD ----------------
 doc.build(elements)
 
 print("✅ PDF generated:", out_pdf)
