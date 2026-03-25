@@ -165,7 +165,7 @@ total = passed + failed
 elements.append(Paragraph(f"Total tests: {total}", styles['Normal']))
 elements.append(Paragraph(f"Passed: {passed}", styles['Normal']))
 elements.append(Paragraph(f"Failed: {failed}", styles['Normal']))
-    add_space(0.2)
+add_space(0.2)
 
 # ---------------- PERCY ----------------
 elements.append(Paragraph("Visual Testing (Percy)", styles['Heading2']))
