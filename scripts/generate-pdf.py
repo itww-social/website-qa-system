@@ -158,9 +158,13 @@ if os.path.exists(pw_file):
     elements.append(Paragraph("Functional Tests (Playwright)", styles['Heading2']))
     add_space(0.1)
 
-    elements.append(Paragraph(f"Total tests: {stats.get('tests', 'N/A')}", styles['Normal']))
-    elements.append(Paragraph(f"Passed: {stats.get('expected', 'N/A')}", styles['Normal']))
-    elements.append(Paragraph(f"Failed: {stats.get('unexpected', 'N/A')}", styles['Normal']))
+passed = stats.get('expected', 0)
+failed = stats.get('unexpected', 0)
+total = passed + failed
+
+elements.append(Paragraph(f"Total tests: {total}", styles['Normal']))
+elements.append(Paragraph(f"Passed: {passed}", styles['Normal']))
+elements.append(Paragraph(f"Failed: {failed}", styles['Normal']))
     add_space(0.2)
 
 # ---------------- PERCY ----------------
